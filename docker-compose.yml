@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  monitor:
+    build: .
+    env_file:
+      - .env
+    environment:
+      - WEBHOOK_URLS=${WEBHOOK_URLS}
+      - WEIBO_URLS=${WEIBO_URLS}
+      - DEEPL_API_KEY=${DEEPL_API_KEY}
+      - REFRESH_DELAY=${REFRESH_DELAY}
