@@ -141,16 +141,30 @@ export const fetchWeibo = async (
     const images: Buffer[] = [];
     if (entry.pic_infos) {
       for (const pic of Object.values(entry.pic_infos)) {
-        images.push(await fetchWeiboImage((pic as any).large.url, imageCache));
+        try {
+          const imageData = await fetchWeiboImage(
+            (pic as any).large.url,
+            imageCache,
+          );
+          images.push(imageData);
+        } catch (e) {
+          console.error("Failed to retrieve image");
+          console.error(e);
+        }
       }
     }
     let text = entry.text_raw;
     if (entry.isLongText) {
-      const longTextResponse = await appFetch(
-        `https://weibo.com/ajax/statuses/longtext?id=${entry.mblogid}`,
-      );
-      const longTextData = await longTextResponse.json();
-      text = longTextData.data.longTextContent;
+      try {
+        const longTextResponse = await appFetch(
+          `https://weibo.com/ajax/statuses/longtext?id=${entry.mblogid}`,
+        );
+        const longTextData = await longTextResponse.json();
+        text = longTextData.data.longTextContent;
+      } catch (e) {
+        console.error("Failed to retrieve post longtext");
+        console.error(e);
+      }
     }
     posts.push({
       id: entry.id,

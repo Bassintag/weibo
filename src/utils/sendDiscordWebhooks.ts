@@ -90,7 +90,8 @@ const sendDiscordWebhook = async (post: Post, webhookUrl: string) => {
   });
 
   if (!response.ok) {
-    console.log(response.status, await response.text());
+    console.error("Failed to send discord webhook");
+    console.error(await response.text());
   }
 };
 
