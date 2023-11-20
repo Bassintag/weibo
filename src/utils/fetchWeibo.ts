@@ -144,6 +144,14 @@ export const fetchWeibo = async (
         images.push(await fetchWeiboImage((pic as any).large.url, imageCache));
       }
     }
+    let text = entry.text_raw;
+    if (entry.isLongText) {
+      const longTextResponse = await appFetch(
+        `https://weibo.com/ajax/statuses/longtext?id=${entry.mblogid}`,
+      );
+      const longTextData = await longTextResponse.json();
+      text = longTextData.data.longTextContent;
+    }
     posts.push({
       id: entry.id,
       timestamp: new Date(entry.created_at).toISOString(),
@@ -156,7 +164,7 @@ export const fetchWeibo = async (
           16,
         ),
       },
-      text: entry.text_raw,
+      text,
       images,
     });
   }
