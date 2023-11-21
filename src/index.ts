@@ -11,11 +11,16 @@ const refresh = async (weiboUrl: string, config: Config) => {
 
   const after = latestRefresh[weiboUrl];
   latestRefresh[weiboUrl] = new Date().getTime();
-  const posts = await fetchWeibo(weiboUrl, after);
-  if (posts.length === 0) return;
-  await translatePosts(posts, config.deeplApiKey);
-  for (const webhookUrl of config.webhookUrls) {
-    await sendDiscordWebhooks(posts, webhookUrl);
+  try {
+    const posts = await fetchWeibo(weiboUrl, after);
+    if (posts.length === 0) return;
+    await translatePosts(posts, config.deeplApiKey);
+    for (const webhookUrl of config.webhookUrls) {
+      await sendDiscordWebhooks(posts, webhookUrl);
+    }
+  } catch (e) {
+    console.error("Refresh failed");
+    console.error(e);
   }
 };
 
