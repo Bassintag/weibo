@@ -1,19 +1,20 @@
 import { Config } from "../domain/Config";
-import dotenv from "dotenv";
+import * as fs from "fs";
 
-const parseStringArray = (key: string): string[] => {
-  const value = process.env[key];
-  if (value == null || value.length == 0) return [];
-  return value.split(",");
-};
+export const loadConfig = (verbose: boolean = false): Config => {
+  let configData: string;
+  try {
+    configData = fs.readFileSync("config.json", "utf-8");
+  } catch (e) {
+    console.error("Failed to open config file");
+    throw e;
+  }
 
-export const loadConfig = (): Config => {
-  dotenv.config();
+  const config = JSON.parse(configData) as Config;
 
-  return {
-    webhookUrls: parseStringArray("WEBHOOK_URLS"),
-    weiboUrls: parseStringArray("WEIBO_URLS"),
-    deeplApiKey: process.env.DEEPL_API_KEY as string,
-    refreshDelay: parseInt(process.env.REFRESH_DELAY as string),
-  };
+  if (verbose) {
+    console.log(config);
+  }
+
+  return config;
 };

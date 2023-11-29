@@ -1,6 +1,12 @@
+export interface BlogConfig {
+  alias?: string;
+  name?: string;
+  url: string;
+}
+
 export interface Config {
-  webhookUrls: string[];
-  weiboUrls: string[];
   deeplApiKey: string;
-  refreshDelay: number;
+  webhooks: string[];
+  blogs: BlogConfig[];
+  cookies?: string[];
 }

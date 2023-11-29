@@ -1,46 +1,43 @@
-import { loadConfig } from "./utils/loadConfig";
-import { fetchWeibo } from "./utils/fetchWeibo";
-import { sendDiscordWebhooks } from "./utils/sendDiscordWebhooks";
-import { Config } from "./domain/Config";
-import { translatePosts } from "./utils/translatePost";
+import { monitor } from "./commands/monitor";
+import { program } from "commander";
+import { list } from "./commands/list";
+import { add } from "./commands/add";
+import { rm } from "./commands/rm";
 
-const latestRefresh: Record<string, number> = {};
+const prog = program.name("Node Weibo");
 
-const refresh = async (weiboUrl: string, config: Config) => {
-  console.log("Refreshing", weiboUrl);
+prog
+  .command("monitor")
+  .action(monitor)
+  .option("-v, --verbose")
+  .option(
+    "-r, --refreshDelay <delay>",
+    "Delay between each monitor update",
+    "360000",
+  );
 
-  const after = latestRefresh[weiboUrl];
-  latestRefresh[weiboUrl] = new Date().getTime();
-  try {
-    const posts = await fetchWeibo(weiboUrl, after);
-    if (posts.length === 0) return;
-    await translatePosts(posts, config.deeplApiKey);
-    for (const webhookUrl of config.webhookUrls) {
-      await sendDiscordWebhooks(posts, webhookUrl);
-    }
-  } catch (e) {
-    console.error("Refresh failed");
-    console.error(e);
-  }
-};
+prog
+  .command("list")
+  .action(list)
+  .option("-v, --verbose")
+  .option("-w, --write", "Updates the config with the retrieved seller names")
+  .option("--no-cache", "Ignores cache and fetch every config");
+
+prog
+  .command("add")
+  .action(add)
+  .argument("<url>", "Url of the blog")
+  .option("-v, --verbose")
+  .option("-a, --alias <alias>", "Set the alias for this blog");
+
+prog
+  .command("rm")
+  .action(rm)
+  .argument("<id>", "ID of the blog to remove", parseInt)
+  .option("-v, --verbose");
 
 const main = async () => {
-  const config = loadConfig();
-
-  console.log(config);
-
-  const now = new Date().getTime();
-  for (let i = 0; i < config.weiboUrls.length; i++) {
-    const url = config.weiboUrls[i];
-    latestRefresh[url] = now;
-    const delay = (config.refreshDelay / config.weiboUrls.length) * i;
-    setTimeout(() => {
-      refresh(url, config);
-      setInterval(() => {
-        refresh(url, config);
-      }, config.refreshDelay);
-    }, delay);
-  }
+  prog.parse();
 };
 
 void main();

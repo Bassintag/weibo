@@ -23,4 +23,4 @@ RUN yarn --production
 
 COPY --from=builder /home/app/dist .
 
-CMD ["node", "."]
+CMD ["node", ".", "monitor"]
