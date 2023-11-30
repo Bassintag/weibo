@@ -3,6 +3,7 @@ import { program } from "commander";
 import { list } from "./commands/list";
 import { add } from "./commands/add";
 import { rm } from "./commands/rm";
+import { update } from "./commands/update";
 
 const prog = program.name("Node Weibo");
 
@@ -16,12 +17,9 @@ prog
     "360000",
   );
 
-prog
-  .command("list")
-  .action(list)
-  .option("-v, --verbose")
-  .option("-w, --write", "Updates the config with the retrieved seller names")
-  .option("--no-cache", "Ignores cache and fetch every config");
+prog.command("list").action(list).option("-v, --verbose");
+
+prog.command("update").action(update).option("-v, --verbose");
 
 prog
   .command("add")

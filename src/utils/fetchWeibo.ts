@@ -1,6 +1,7 @@
 import { Cookie, CookieJar } from "tough-cookie";
 import { Config } from "../domain/Config";
 import { writeConfig } from "./writeConfig";
+import { Options } from "../domain/Options";
 
 const defaultFp =
   '{"os":"3","browser":"Gecko109,0,0,0","fonts":"undefined","screenInfo":"1920*1080*24","plugins":"Portable Document Format::internal-pdf-viewer::PDF Viewer|Portable Document Format::internal-pdf-viewer::Chrome PDF Viewer|Portable Document Format::internal-pdf-viewer::Chromium PDF Viewer|Portable Document Format::internal-pdf-viewer::Microsoft Edge PDF Viewer|Portable Document Format::internal-pdf-viewer::WebKit built-in PDF"}';
@@ -25,7 +26,10 @@ export interface FetchWeibo {
   (url: string, init?: AppRequestInit): Promise<Response>;
 }
 
-export const createFetchWeibo = async (config: Config): Promise<FetchWeibo> => {
+export const createFetchWeibo = async (
+  config: Config,
+  { verbose }: Options,
+): Promise<FetchWeibo> => {
   const jar = new CookieJar();
 
   if (config.cookies) {
@@ -42,7 +46,9 @@ export const createFetchWeibo = async (config: Config): Promise<FetchWeibo> => {
   ): Promise<Response> => {
     const cookieString = await jar.getCookieString(url);
 
-    console.log(">>", url);
+    if (verbose) {
+      console.log(">>", url);
+    }
 
     init.keepalive = true;
 
@@ -61,7 +67,6 @@ export const createFetchWeibo = async (config: Config): Promise<FetchWeibo> => {
       await jar.setCookie(parsed, url);
     }
     if (setCookies.length > 0 && url.startsWith("https://weibo.com/")) {
-      console.log("WRITE COOKIES");
       config.cookies = await jar.getSetCookieStrings("https://weibo.com/");
       writeConfig(config);
     }

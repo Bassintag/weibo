@@ -5,6 +5,7 @@ import { translatePosts } from "../utils/translatePost";
 import { loadConfig } from "../utils/loadConfig";
 import { Command } from "../domain/Command";
 import { createFetchWeibo, FetchWeibo } from "../utils/fetchWeibo";
+import { Options } from "../domain/Options";
 
 const latestRefresh: Record<string, number> = {};
 
@@ -12,9 +13,11 @@ const refresh = async (
   fetchWeibo: FetchWeibo,
   weiboUrl: string,
   config: Config,
+  options: Options,
 ) => {
-  console.log("Refreshing", weiboUrl);
-
+  if (options.verbose) {
+    console.log("Refreshing", weiboUrl);
+  }
   const after = latestRefresh[weiboUrl];
   latestRefresh[weiboUrl] = new Date().getTime();
   try {
@@ -48,15 +51,15 @@ export const monitor: Command<{ refreshDelay: string }> = async (options) => {
   const config = loadConfig(options.verbose);
   const now = new Date().getTime();
   const refreshDelay = parseInt(options.refreshDelay);
-  const fetchWeibo = await createFetchWeibo(config);
+  const fetchWeibo = await createFetchWeibo(config, options);
   for (let i = 0; i < config.blogs.length; i++) {
     const { url } = config.blogs[i];
     latestRefresh[url] = now;
     const delay = (refreshDelay / config.blogs.length) * i;
     setTimeout(() => {
-      refresh(fetchWeibo, url, config);
+      refresh(fetchWeibo, url, config, options);
       setInterval(() => {
-        refresh(fetchWeibo, url, config);
+        refresh(fetchWeibo, url, config, options);
       }, refreshDelay);
     }, delay);
   }

@@ -10,7 +10,7 @@ export const add = async (
   options: Options & { url: string; alias?: string },
 ) => {
   const config = loadConfig(options.verbose);
-  const fetchWeibo = await createFetchWeibo(config);
+  const fetchWeibo = await createFetchWeibo(config, options);
 
   const id = getWeiboId(url);
 
