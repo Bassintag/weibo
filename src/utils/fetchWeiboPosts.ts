@@ -35,6 +35,20 @@ export const fetchWeiboPosts = async (
         }
       }
     }
+    if (entry.mix_media_info) {
+      for (const media of entry.mix_media_info.items) {
+        if (media.type !== "video") continue;
+        const url = media.data.pic_info?.pic_big?.url;
+        if (url == null) continue;
+        try {
+          const imageData = await fetchWeiboImage(url);
+          images.push(imageData);
+        } catch (e) {
+          console.error("Failed to retrieve image");
+          console.error(e);
+        }
+      }
+    }
     let text = entry.text_raw;
     if (entry.isLongText) {
       try {

@@ -4,6 +4,7 @@ import { list } from "./commands/list";
 import { add } from "./commands/add";
 import { rm } from "./commands/rm";
 import { update } from "./commands/update";
+import { listPosts } from "./commands/listPosts";
 
 const prog = program.name("Node Weibo");
 
@@ -33,6 +34,19 @@ prog
   .action(rm)
   .argument("<id>", "ID of the blog to remove", parseInt)
   .option("-v, --verbose");
+
+prog
+  .command("listPosts")
+  .action(listPosts)
+  .argument("<id>", "ID of the blog to remove", parseInt)
+  .option("-v, --verbose")
+  .option("-w, --webhook", "Trigger the webhooks for each post")
+  .option(
+    "-a, --after <time>",
+    "Only include posts after a defined time",
+    parseInt,
+    0,
+  );
 
 const main = async () => {
   prog.parse();
