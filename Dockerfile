@@ -1,26 +1,14 @@
-FROM node:20-alpine as builder
+FROM oven/bun:1
 
 WORKDIR /home/app
 
-COPY package.json .
-COPY yarn.lock .
+COPY ./package.json .
+COPY ./bun.lockb .
+RUN bun install --production --frozen-lockfile
 
-RUN yarn
+COPY ./tsconfig.json .
+COPY ./src ./src
 
-COPY tsconfig.json .
-COPY src ./src
+USER bun
 
-RUN yarn build
-
-FROM node:20-alpine as production
-
-WORKDIR /home/app
-
-COPY package.json .
-COPY yarn.lock .
-
-RUN yarn --production
-
-COPY --from=builder /home/app/dist .
-
-CMD ["node", ".", "monitor"]
+CMD ["bun", "run", "start", "monitor"]

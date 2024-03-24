@@ -3,5 +3,7 @@ version: "3.9"
 services:
   monitor:
     build: .
+    container_name: "monitor"
     volumes:
       - './config.json:/home/app/config.json'
+    restart: "unless-stopped"
